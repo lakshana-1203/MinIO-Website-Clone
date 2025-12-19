@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports Center - DataFlow</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #4e73df;
+        --success: #1cc88a;
+        --info: #36b9cc;
+        --warning: #f6c23e;
+        --danger: #e74a3b;
+        --purple: #6f42c1;
+        --pink: #e83e8c;
+        --dark: #5a5c69;
+        --light: #f8f9fc;
+        --card-radius: 20px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        padding: 20px;
+        /* Fallback gradient if video is missing */
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        min-height: 100vh;
+        color: #eee;
+      }
+
+      /* Video Background */
+      .vid1 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+        z-index: -2;
+        opacity: 0.6; /* Lowered slightly for readability */
+      }
+
+      /* --- Navbar --- */
+      .navbar-glass {
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        width: 60%;
+      }
+      .navbar-glass .nav-link,
+      .navbar-glass .navbar-brand {
+        color: white !important;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+      .navbar-glass .nav-link:hover,
+      .navbar-glass .nav-link.active {
+        color: var(--warning) !important;
+      }
+      .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+      }
+      .navbar-nav-center {
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
+      /* --- Layout --- */
+      .reports-wrapper {
+        padding: 40px;
+        max-width: 1600px;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+
+      .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .page-header h1 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      }
+      .btn-glow {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 50px;
+        box-shadow: 0 0 15px rgba(78, 115, 223, 0.5);
+        transition: transform 0.2s, background 0.2s;
+        font-weight: 600;
+      }
+      .btn-glow:hover {
+        transform: scale(1.05);
+        background: #3e63d3;
+        color: white;
+      }
+
+      /* --- Cards --- */
+      .card-glass {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--card-radius);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 25px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        color: white;
+        margin-bottom: 30px;
+        transition: transform 0.3s;
+      }
+
+      /* --- Summary Widgets --- */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+      .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .s-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+
+      /* --- Filter Section --- */
+      .filter-bar {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+      .form-glass {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 10px;
+      }
+      .form-glass:focus {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: none;
+      }
+      .form-glass::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .form-select.form-glass option {
+        background-color: #333;
+        color: white;
+      }
+      ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+      }
+
+      /* --- Table Styling --- */
+      .table-responsive {
+        border-radius: 15px;
+        min-height: 300px;
+      }
+      .table-glass {
+        width: 100%;
+        margin-bottom: 0;
+        color: #eee;
+      }
+      .table-glass th {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        color: rgba(255, 255, 255, 0.8);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+      }
+      .table-glass td {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        vertical-align: middle;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .table-glass tr:hover td {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+      }
+      .table-glass tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* Badges */
+      .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+      }
+      .st-complete {
+        background: rgba(28, 200, 138, 0.2);
+        color: #2ecc71;
+        border: 1px solid rgba(28, 200, 138, 0.4);
+      }
+      .st-pending {
+        background: rgba(246, 194, 62, 0.2);
+        color: #f1c40f;
+        border: 1px solid rgba(246, 194, 62, 0.4);
+      }
+      .st-failed {
+        background: rgba(231, 74, 59, 0.2);
+        color: #e74a3b;
+        border: 1px solid rgba(231, 74, 59, 0.4);
+      }
+
+      /* Action Buttons */
+      .btn-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: 0.2s;
+        margin-left: 5px;
+        cursor: pointer;
+      }
+      .btn-dl {
+        background: rgba(54, 185, 204, 0.2);
+        color: var(--info);
+      }
+      .btn-dl:hover {
+        background: var(--info);
+        color: white;
+      }
+      .btn-del {
+        background: rgba(231, 74, 59, 0.2);
+        color: var(--danger);
+      }
+      .btn-del:hover {
+        background: var(--danger);
+        color: white;
+      }
+      .btn-icon:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .reports-wrapper {
+          padding: 20px;
+        }
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+        .filter-bar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .filter-bar > div {
+          width: 100%;
+        }
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <video class="vid1" src="./assets/vid1.mp4" autoplay loop muted></video>
+
+    <div style="display: flex; justify-content: center">
+      <nav class="navbar navbar-expand-lg navbar-dark navbar-glass">
+        <div class="container">
+          <a class="navbar-brand" style="margin-right: 0;" href="#">📈 DataFlow</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav navbar-nav-center mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="./index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="./reports.html">Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./analytics.html">Analytics</a>
+              </li>
+            </ul>
+            <div class="d-flex ms-auto-lg">
+              <div
+                style="
+                  width: 40px;
+                  height: 40px;
+                  background: rgba(255, 255, 255, 0.2);
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="reports-wrapper">
+      <div class="page-header">
+        <div>
+          <h1>Reports <span style="color: var(--primary)">Center</span></h1>
+          <p style="opacity: 0.8">
+            Generate, view, and download your monthly performance insights.
+          </p>
+        </div>
+        <button
+          class="btn btn-glow"
+          data-bs-toggle="modal"
+          data-bs-target="#generateModal"
+        >
+          <i class="fas fa-plus-circle me-2"></i> Generate New
+        </button>
+      </div>
+
+      <div class="summary-grid">
+        <div class="card-glass summary-item">
+          <div
+            class="s-icon"
+            style="background: rgba(78, 115, 223, 0.2); color: var(--primary)"
+          >
+            <i class="fas fa-file-invoice"></i>
+          </div>
+          <div>
+            <h2 class="mb-0" id="totalReports">124</h2>
+            <small style="opacity: 0.7">Total Reports</small>
+          </div>
+        </div>
+        <div class="card-glass summary-item">
+          <div
+            class="s-icon"
+            style="background: rgba(28, 200, 138, 0.2); color: var(--success)"
+          >
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div>
+            <h2 class="mb-0">98%</h2>
+            <small style="opacity: 0.7">Success Rate</small>
+          </div>
+        </div>
+        <div class="card-glass summary-item">
+          <div
+            class="s-icon"
+            style="background: rgba(246, 194, 62, 0.2); color: var(--warning)"
+          >
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <h2 class="mb-0">12</h2>
+            <small style="opacity: 0.7">Scheduled</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-glass" style="padding: 0">
+        <div
+          style="
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          "
+        >
+          <div class="filter-bar">
+            <div style="flex-grow: 1">
+              <label style="font-size: 0.8rem; margin-bottom: 5px; opacity: 0.7"
+                >Search Reports</label
+              >
+              <input
+                type="text"
+                id="searchInput"
+                class="form-control form-glass"
+                placeholder="Search by name or ID..."
+              />
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; margin-bottom: 5px; opacity: 0.7"
+                >Category</label
+              >
+              <select class="form-select form-glass" id="categoryFilter">
+                <option value="All">All Categories</option>
+                <option value="Sales">Sales</option>
+                <option value="Growth">User Growth</option>
+                <option value="Financial">Financial</option>
+                <option value="Inventory">Inventory</option>
+                <option value="UX/UI">UX/UI</option>
+              </select>
+            </div>
+            <div>
+              <label style="opacity: 0; display: block; margin-bottom: 5px"
+                >Action</label
+              >
+              <button
+                class="btn btn-outline-light"
+                style="border-color: rgba(255, 255, 255, 0.3)"
+                onclick="renderTable()"
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-glass align-middle">
+            <thead>
+              <tr>
+                <th>Report ID</th>
+                <th>Report Name</th>
+                <th>Date Generated</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+
+          <div
+            id="emptyState"
+            style="
+              display: none;
+              padding: 40px;
+              text-align: center;
+              opacity: 0.7;
+            "
+          >
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <p>No matching reports found.</p>
+          </div>
+        </div>
+
+        <div
+          style="
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+          "
+        >
+          <span style="font-size: 0.8rem; opacity: 0.7" id="showingText"
+            >Showing 1-6 of 124</span
+          >
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="#"
+                  style="
+                    background: transparent;
+                    border-color: rgba(255, 255, 255, 0.2);
+                    color: white;
+                  "
+                  onclick="changePage(-1)"
+                  >Prev</a
+                >
+              </li>
+              <li class="page-item active">
+                <a
+                  class="page-link"
+                  href="#"
+                  style="
+                    background: var(--primary);
+                    border-color: var(--primary);
+                  "
+                  >1</a
+                >
+              </li>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="#"
+                  style="
+                    background: transparent;
+                    border-color: rgba(255, 255, 255, 0.2);
+                    color: white;
+                  "
+                  onclick="changePage(1)"
+                  >Next</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="generateModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div
+          class="modal-content"
+          style="
+            background: rgba(40, 44, 52, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          "
+        >
+          <div
+            class="modal-header"
+            style="border-bottom-color: rgba(255, 255, 255, 0.1)"
+          >
+            <h5 class="modal-title">Generate New Report</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="generateForm">
+              <div class="mb-3">
+                <label class="form-label">Report Name</label>
+                <input
+                  type="text"
+                  id="newReportName"
+                  class="form-control form-glass"
+                  placeholder="e.g. Q4 Performance Analysis"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select id="newReportCategory" class="form-select form-glass">
+                  <option value="Sales">Sales</option>
+                  <option value="Growth">User Growth</option>
+                  <option value="Financial">Financial</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div
+            class="modal-footer"
+            style="border-top-color: rgba(255, 255, 255, 0.1)"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-light btn-sm"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-glow btn-sm"
+              onclick="addNewReport()"
+            >
+              Start Generation
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // --- 1. Mock Data ---
+      let reports = [
+        {
+          id: "#RPT-8832",
+          name: "Monthly Sales - Dec",
+          date: "2025-12-08",
+          category: "Sales",
+          status: "Completed",
+          type: "pdf",
+        },
+        {
+          id: "#RPT-8831",
+          name: "User Acquisition Q4",
+          date: "2025-12-07",
+          category: "Growth",
+          status: "Completed",
+          type: "excel",
+        },
+        {
+          id: "#RPT-8830",
+          name: "Revenue Audit",
+          date: "2025-12-06",
+          category: "Financial",
+          status: "Processing",
+          type: "pdf",
+        },
+        {
+          id: "#RPT-8829",
+          name: "Inventory Log",
+          date: "2025-12-05",
+          category: "Inventory",
+          status: "Failed",
+          type: "csv",
+        },
+        {
+          id: "#RPT-8828",
+          name: "Weekly Overview",
+          date: "2025-12-01",
+          category: "Sales",
+          status: "Completed",
+          type: "pdf",
+        },
+        {
+          id: "#RPT-8827",
+          name: "Heatmap Analytics",
+          date: "2025-11-28",
+          category: "UX/UI",
+          status: "Completed",
+          type: "img",
+        },
+        {
+          id: "#RPT-8826",
+          name: "Q3 Summary",
+          date: "2025-11-15",
+          category: "Financial",
+          status: "Completed",
+          type: "pdf",
+        },
+      ];
+
+      // --- 2. Initial Render ---
+      document.addEventListener("DOMContentLoaded", () => {
+        renderTable();
+        updateCount();
+      });
+
+      // --- 3. Filtering Logic ---
+      const searchInput = document.getElementById("searchInput");
+      const categoryFilter = document.getElementById("categoryFilter");
+
+      searchInput.addEventListener("keyup", renderTable);
+      categoryFilter.addEventListener("change", renderTable);
+
+      function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        const emptyState = document.getElementById("emptyState");
+        tbody.innerHTML = "";
+
+        const searchTerm = searchInput.value.toLowerCase();
+        const catValue = categoryFilter.value;
+
+        // Filter Data
+        const filtered = reports.filter((item) => {
+          const matchesSearch =
+            item.name.toLowerCase().includes(searchTerm) ||
+            item.id.toLowerCase().includes(searchTerm);
+          const matchesCat = catValue === "All" || item.category === catValue;
+          return matchesSearch && matchesCat;
+        });
+
+        // Handle Empty State
+        if (filtered.length === 0) {
+          emptyState.style.display = "block";
+        } else {
+          emptyState.style.display = "none";
+
+          // Generate Rows
+          filtered.forEach((item) => {
+            const iconClass = getIcon(item.type);
+            const statusBadge = getStatusBadge(item.status);
+
+            // Logic for buttons (disable download if processing)
+            const isProcessing = item.status === "Processing";
+            const btnStyle = isProcessing
+              ? "opacity: 0.5; cursor: not-allowed"
+              : "";
+
+            const row = `
+              <tr>
+                <td><span style="font-family: monospace; opacity: 0.8">${
+                  item.id
+                }</span></td>
+                <td><i class="${iconClass} me-2"></i> ${item.name}</td>
+                <td>${item.date}</td>
+                <td>${item.category}</td>
+                <td>${statusBadge}</td>
+                <td class="text-end">
+                  <button class="btn-icon btn-dl" style="${btnStyle}" ${
+              isProcessing ? "disabled" : ""
+            } onclick="downloadReport('${item.id}')">
+                    <i class="fas fa-download"></i>
+                  </button>
+                  <button class="btn-icon btn-del" onclick="deleteReport('${
+                    item.id
+                  }')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `;
+            tbody.insertAdjacentHTML("beforeend", row);
+          });
+        }
+        document.getElementById(
+          "showingText"
+        ).innerText = `Showing ${filtered.length} results`;
+      }
+
+      // --- 4. Helper Functions ---
+      function getIcon(type) {
+        if (type === "pdf") return "fas fa-file-pdf text-danger";
+        if (type === "excel") return "fas fa-file-excel text-success";
+        if (type === "csv") return "fas fa-file-csv text-primary";
+        if (type === "img") return "fas fa-file-image text-info";
+        return "fas fa-file";
+      }
+
+      function getStatusBadge(status) {
+        if (status === "Completed")
+          return '<span class="status-badge st-complete">Completed</span>';
+        if (status === "Processing")
+          return '<span class="status-badge st-pending"><i class="fas fa-spinner fa-spin me-1"></i> Processing</span>';
+        if (status === "Failed")
+          return '<span class="status-badge st-failed">Failed</span>';
+        return "<span>" + status + "</span>";
+      }
+
+      function updateCount() {
+        document.getElementById("totalReports").innerText = reports.length;
+      }
+
+      // --- 5. Actions (Delete / Add / Download) ---
+
+      function deleteReport(id) {
+        if (confirm(`Are you sure you want to delete report ${id}?`)) {
+          reports = reports.filter((r) => r.id !== id);
+          renderTable();
+          updateCount();
+        }
+      }
+
+      function downloadReport(id) {
+        alert(`Starting download for ${id}...`);
+      }
+
+      function addNewReport() {
+        const nameInput = document.getElementById("newReportName");
+        const catInput = document.getElementById("newReportCategory");
+
+        if (!nameInput.value) {
+          alert("Please enter a report name");
+          return;
+        }
+
+        const newReport = {
+          id: "#RPT-" + Math.floor(Math.random() * 9000 + 1000),
+          name: nameInput.value,
+          date: new Date().toISOString().split("T")[0],
+          category: catInput.value,
+          status: "Processing",
+          type: "pdf",
+        };
+
+        reports.unshift(newReport); // Add to top
+        renderTable();
+        updateCount();
+
+        // Close Modal
+        const modalEl = document.getElementById("generateModal");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        // Reset form
+        nameInput.value = "";
+      }
+
+      // --- 6. Mock Pagination (Visual Only) ---
+      function changePage(direction) {
+        alert(
+          "Pagination Logic: In a real app, this would fetch page " +
+            (direction === 1 ? "2" : "Previous")
+        );
+      }
+    </script>
+  </body>
+</html>

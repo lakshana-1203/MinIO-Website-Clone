@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Dashboard Landing Page with Video Background</title>
+    
+    <style>
+        /* Basic Reset and Variables */
+        :root {
+            --bg-color: #1a1a2e; /* Dark background (Deep Indigo/Purple) */
+            --card-color: #2c2c4b; /* Lighter card background */
+            --text-color: #e0e0e0; /* Light gray text */
+            --highlight-color: #a872e4; /* Vibrant Purple highlight */
+            --light-purple: #f3e5f5; /* Very light purple for description text */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* The body background is still needed for areas the video doesn't cover */
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            min-height: 100vh;
+            /* Make sure the body is positioned relative for absolute children */
+            position: relative; 
+        }
+
+        /* --- NEW: Full-Screen Video Background Container --- */
+        #video-background-container {
+            position: fixed; /* Fixed position ensures it covers the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /* Z-index below the main content (which will have z-index: 1 or higher) */
+            z-index: -10; 
+        }
+
+        #video-background {
+            width: 100%;
+            height: 100%;
+            /* Ensures the video covers the container without stretching, cropping if necessary */
+            object-fit: cover; 
+            /* Subtle opacity to make the text highly readable */
+            opacity: 0.15; 
+        }
+
+
+        /* --- 1. Header/Navbar Styling --- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            /* Use a slightly transparent background so the video background is visible */
+            background-color: rgba(10, 10, 30, 0.9); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 0;
+            z-index: 10; /* Ensure header is above main content */
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--highlight-color);
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s;
+            font-size: 15px;
+        }
+
+        .search-bar {
+            display: flex;
+        }
+
+        .search-bar input {
+            padding: 10px 18px;
+            border: 1px solid var(--card-color);
+            border-radius: 5px 0 0 5px;
+            background-color: var(--card-color);
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: var(--highlight-color);
+            color: white;
+            cursor: pointer;
+        }
+        
+        /* --- 2. Main Content Layout --- */
+        .main-content-container {
+            display: flex;
+            align-items: flex-start;
+            padding: 60px 40px;
+            gap: 50px;
+            max-width: 1500px;
+            margin: 0 auto;
+            position: relative; /* Essential for z-index to work */
+            z-index: 1; /* Ensures content is visible above the video */
+            /* Add some padding-top to compensate for the sticky navbar */
+            padding-top: 100px; 
+        }
+
+        /* Left Column Styling (Text) */
+        .left-column {
+            flex: 2; 
+            min-width: 300px;
+            /* Add a subtle background to the text area for better contrast against the moving video */
+            background-color: rgba(26, 26, 46, 0.6); 
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-title {
+            font-size: 55px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        
+        .main-title span {
+            color: var(--highlight-color); 
+        }
+
+        .description {
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--light-purple);
+            margin-bottom: 25px;
+            opacity: 0.95; /* Increased opacity for better readability on background */
+        }
+
+        /* Right Column Styling (Dashboard Image) */
+        .right-column {
+            flex: 3; 
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            /* Optional: Make the image card semi-transparent too */
+            background-color: rgba(44, 44, 75, 0.4); 
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .dashboard-image {
+            width: 100%;
+            max-width: 1000px; 
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Optional: Media Query for responsive design */
+        @media (max-width: 1024px) {
+            .main-content-container {
+                flex-direction: column;
+                padding: 40px 20px;
+                gap: 50px;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links, .search-bar {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .left-column, .right-column {
+                flex: none; 
+                width: 100%;
+                padding: 20px; /* Reduced padding for mobile */
+            }
+            
+            .main-title {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="video-background-container">
+        <video id="video-background" autoplay muted loop>
+            <source src="./assets/vid1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <header class="navbar">
+        <div class="logo">DataFlow</div>
+        <nav class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Reports</a>
+            <a href="#">Analytics</a>
+        </nav>
+        <div class="search-bar">
+            <input type="text" placeholder="Search Dashboards">
+            <button>Search</button>
+        </div>
+    </header>
+
+    <main class="main-content-container">
+
+        <section class="left-column">
+            <h1 class="main-title">Visualize <span class="emphasize">Your Growth</span></h1>
+            <p class="description">Gain powerful insights into your monthly and yearly performance. Our dashboard provides a clear, actionable overview of your key metrics with stunning visualizations. You can track sales, users, and income trends effortlessly, helping you make data-driven decisions faster than ever.</p>
+            <p class="description">This powerful visual experience is anchored by dynamic content, while the main dashboard visualization draws the eye with key performance indicators.</p>
+        </section>
+
+        <section class="right-column">
+            <img src="./assets/jii.png" alt="Dashboard Visualization Preview" class="dashboard-image">
+        </section>
+
+    </main>
+
+</body>
+</html>

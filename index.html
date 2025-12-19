@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #4e73df;
+        --success: #1cc88a;
+        --info: #36b9cc;
+        --warning: #f6c23e;
+        --danger: #e74a3b;
+        --purple: #6f42c1;
+        --pink: #e83e8c;
+        --dark: #5a5c69;
+        --light: #f8f9fc;
+        --card-radius: 20px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: black;
+        min-height: 100vh;
+        padding: 20px;
+        color: #444;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(80, 50, 150, 0.3);
+        z-index: -1;
+      }
+
+      .vid1 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+        z-index: -2;
+      }
+
+      /* Navbar Styles */
+      .navbar-glass {
+        padding: 10px 20px;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        width: 60%;
+      }
+      .navbar-glass .nav-link,
+      .navbar-glass .navbar-brand {
+        color: white !important;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+      .navbar-glass .nav-link:hover {
+        color: var(--warning) !important;
+      }
+      .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+      }
+      .navbar-toggler-icon {
+        filter: invert(1);
+      }
+      .navbar-nav-center {
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+      #search_bar {
+        background-color: rgba(116, 116, 116, 0.115) !important;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border-radius: 50px;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.267);
+      }
+      #search_bar:focus {
+        box-shadow: var(--purple) 0px 30px 60px -12px inset, var(--purple) 0px 18px 36px -18px inset;
+      }
+
+      .btn {
+        font-weight: 700;
+        color: var(--purple);
+        border: none;
+        background-color: rgba(75, 201, 255, 0.395);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+      .btn:hover {
+        background-color: var(--purple);
+        color: rgba(75, 201, 255, 0.395);
+      }
+
+      /* --- LAYOUT FIXES START HERE --- */
+
+      .main-content-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Changed to flex-start for cleaner top alignment */
+        padding: 30px;
+        gap: 40px; /* Increased gap slightly */
+        min-height: calc(100vh - 80px);
+        margin-top: 20px;
+        max-width: 1800px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow-x: hidden;
+      }
+
+      .left-text-section {
+        flex: 0 0 400px;
+        color: white;
+        padding: 20px 0;
+        margin-top: 20px; /* Aligns text start with dashboard top */
+        text-align: left;
+      }
+      .left-text-section h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      }
+      .left-text-section p {
+        font-size: 1.1rem;
+        font-weight: 300;
+        opacity: 0.9;
+      }
+
+      .dashboard-wrapper {
+        flex-grow: 1;
+        max-width: 1200px; /* Constrain width so it doesn't stretch too far */
+      }
+
+      /* Fixed Dashboard Grid */
+      .dashboard-container {
+        padding: 20px; /* Removing padding allows cards to hit edges cleanly */
+        display: grid;
+        /* FIXED: Removed transform: scale(0.9) which was breaking alignment */
+        grid-template-columns: 2fr 1fr;
+        gap: 20px; /* Standardized Gap */
+        background-color: rgba(255, 255, 255, 0.136);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+      }
+
+      /* Flex Column Helpers for Alignment */
+      .left-col-stack,
+      .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Matches grid gap */
+        height: 100%; /* Ensures both columns stretch equally */
+      }
+
+      .chart-card-fill {
+        /* FIXED: Replaces fixed height. 
+           This makes the chart take up all remaining vertical space 
+           so the bottom aligns with the right column. */
+        flex: 1;
+        min-height: 450px; /* Minimum safety height */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      /* --- END LAYOUT FIXES --- */
+
+      .card {
+        background: rgba(255, 255, 255, 0.259);
+        border-radius: var(--card-radius);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(135, 247, 255, 0.3);
+        background: rgba(255, 255, 255, 0.35);
+        border-color: #4e73df;
+      }
+
+      /* Staggered Animation */
+      .card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      h3 {
+        font-size: 0.9rem;
+        color: #555;
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+      h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .badge {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+      }
+      .badge.up {
+        background: rgba(28, 200, 138, 0.2);
+        color: #0f6848;
+      }
+      .badge.down {
+        background: rgba(231, 74, 59, 0.2);
+        color: #8a1f16;
+      }
+
+      /* Top Stats */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        width: 100%;
+      }
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+      .stat-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        right: -5px;
+        top: 20%;
+        height: 60%;
+        width: 1px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+      .icon-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+      }
+      .ic-blue {
+        background: rgba(78, 115, 223, 0.1);
+        color: var(--primary);
+      }
+      .ic-green {
+        background: rgba(28, 200, 138, 0.1);
+        color: var(--success);
+      }
+      .ic-pink {
+        background: rgba(232, 62, 140, 0.1);
+        color: var(--pink);
+      }
+      .ic-cyan {
+        background: rgba(54, 185, 204, 0.1);
+        color: var(--info);
+      }
+
+      /* Right Column Widgets */
+      .right-top-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      /* Widget Graphics */
+      .mini-bars {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: 60px;
+        margin-top: 10px;
+      }
+      .bar {
+        width: 6px;
+        background: #ff6b6b;
+        border-radius: 10px;
+        animation: growUp 1s ease-out forwards;
+        transform: scaleY(0);
+        transform-origin: bottom;
+      }
+      .bar:nth-child(even) {
+        background: #ff8787;
+      }
+
+      .radial-chart-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .radial-progress {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary) 0% 78%, #f0f0f0 78% 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        animation: spinFade 1.2s ease-out;
+      }
+      .radial-progress::before {
+        content: "78%";
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #333;
+      }
+
+      /* Main Chart */
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .bar-chart-area {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-end;
+        height: 100%; /* Fill available space */
+        min-height: 180px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .chart-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        height: 100%;
+        justify-content: flex-end;
+      }
+      .bars-group {
+        display: flex;
+        gap: 4px;
+        align-items: flex-end;
+      }
+      .b-bar {
+        width: 10px;
+        border-radius: 4px;
+        transition: height 1s ease;
+      }
+      .b-blue {
+        background: var(--primary);
+      }
+      .b-purple {
+        background: var(--purple);
+      }
+      .month-label {
+        font-size: 0.7rem;
+        color: #777;
+        margin-top: 5px;
+      }
+
+      .donut-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        padding-top: 15px;
+      }
+      .donut-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .mini-donut {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mini-donut.blue {
+        background: conic-gradient(var(--primary) 65%, #eee 0);
+      }
+      .mini-donut.purple {
+        background: conic-gradient(var(--purple) 85%, #eee 0);
+      }
+      .mini-donut::after {
+        content: "";
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+      }
+
+      /* Progress & Wave */
+      .progress-container {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.05);
+        height: 8px;
+        border-radius: 10px;
+        margin-top: 15px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+        border-radius: 10px;
+        transition: width 1.5s ease-out;
+      }
+      .wave-chart {
+        width: 100%;
+        height: 80px;
+        margin-top: 10px;
+      }
+      .path-line {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: drawLine 2s ease-out forwards 0.5s;
+        fill: none; /* Changed to none for cleaner line look */
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes growUp {
+        to {
+          transform: scaleY(1);
+        }
+      }
+      @keyframes spinFade {
+        from {
+          opacity: 0;
+          transform: rotate(-90deg);
+        }
+        to {
+          opacity: 1;
+          transform: rotate(0);
+        }
+      }
+      @keyframes drawLine {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 1400px) {
+        .main-content-wrapper {
+          flex-direction: column;
+          align-items: center;
+        }
+        .left-text-section {
+          flex: none;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .dashboard-wrapper {
+          width: 100%;
+        }
+        .chart-card-fill {
+          min-height: 400px;
+        }
+      }
+      @media (max-width: 1024px) {
+        .dashboard-container {
+          grid-template-columns: 1fr;
+        }
+        .chart-card-fill {
+          height: 400px;
+          flex: none;
+        }
+      }
+      @media (max-width: 600px) {
+        .stats-row {
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+        .stat-item::after {
+          display: none;
+        }
+        .right-top-split {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <video class="vid1" src="./assets/vid1.mp4" autoplay loop muted></video>
+    <div style="display: flex; justify-content: center">
+      <nav class="navbar navbar-expand-lg navbar-dark navbar-glass">
+        <div class="container">
+          <a class="navbar-brand" href="#">📈 DataFlow</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul
+              class="navbar-nav navbar-nav-center mb-2 mb-lg-0"
+              style="display: flex; gap: 2px"
+            >
+              <li class="nav-item">
+                <a class="nav-link active" href="./index.html">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./reports.html">Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="./analytics.html">Analytics</a>
+              </li>
+            </ul>
+            <form class="d-flex flex-grow-0 me-2" role="search">
+              <input
+                id="search_bar"
+                class="form-control me-2"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+              />
+              <button class="btn btn-outline-success" type="submit">
+                Search
+              </button>
+            </form>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="main-content-wrapper">
+      <div class="left-text-section">
+        <h1>
+          Visualize Your <span style="color: var(--warning)">Growth</span>
+        </h1>
+        <p>
+          Gain powerful insights into your monthly and yearly performance. Our
+          dashboard provides a clear, actionable overview of your key metrics
+          with stunning visualizations. You can track sales, users, and income
+          trends effortlessly, helping you make data-driven decisions faster than ever.
+          This space is now wider to accommodate more content and provide a seamless
+          transition to the visual data elements beside it
+        </p>
+      </div>
+
+      <div class="dashboard-wrapper">
+        <div class="dashboard-container">
+          <div class="left-col-stack">
+            <div class="card">
+              <div class="stats-row">
+                <div class="stat-item">
+                  <div class="icon-circle ic-blue">
+                    <i class="fas fa-shopping-cart"></i>
+                  </div>
+                  <h2 class="counter" data-target="85246">0</h2>
+                  <h3>Orders</h3>
+                </div>
+                <div class="stat-item">
+                  <div class="icon-circle ic-green">
+                    <i class="fas fa-print"></i>
+                  </div>
+                  <h2 class="counter" data-target="96147">$0</h2>
+                  <h3>Income</h3>
+                </div>
+                <div class="stat-item">
+                  <div class="icon-circle ic-pink">
+                    <i class="fas fa-bell"></i>
+                  </div>
+                  <h2 class="counter" data-target="846">0</h2>
+                  <h3>Alerts</h3>
+                </div>
+                <div class="stat-item">
+                  <div class="icon-circle ic-cyan">
+                    <i class="fas fa-credit-card"></i>
+                  </div>
+                  <h2 class="counter" data-target="84472">$0</h2>
+                  <h3>Payment</h3>
+                </div>
+              </div>
+            </div>
+
+            <div class="card chart-card-fill">
+              <div class="chart-header">
+                <div>
+                  <h2>Sales & Views</h2>
+                  <h3 style="margin: 0">Performance Overview</h3>
+                </div>
+                <i
+                  class="fas fa-ellipsis-v"
+                  style="color: #555; cursor: pointer"
+                ></i>
+              </div>
+
+              <div class="bar-chart-area">
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 40px"></div>
+                    <div class="b-bar b-purple" style="height: 35px"></div>
+                  </div>
+                  <div class="month-label">Jan</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 20px"></div>
+                    <div class="b-bar b-purple" style="height: 25px"></div>
+                  </div>
+                  <div class="month-label">Feb</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 120px"></div>
+                    <div class="b-bar b-purple" style="height: 90px"></div>
+                  </div>
+                  <div class="month-label">Mar</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 35px"></div>
+                    <div class="b-bar b-purple" style="height: 45px"></div>
+                  </div>
+                  <div class="month-label">Apr</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 60px"></div>
+                    <div class="b-bar b-purple" style="height: 50px"></div>
+                  </div>
+                  <div class="month-label">May</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 40px"></div>
+                    <div class="b-bar b-purple" style="height: 30px"></div>
+                  </div>
+                  <div class="month-label">Jun</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 70px"></div>
+                    <div class="b-bar b-purple" style="height: 90px"></div>
+                  </div>
+                  <div class="month-label">Jul</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 35px"></div>
+                    <div class="b-bar b-purple" style="height: 25px"></div>
+                  </div>
+                  <div class="month-label">Aug</div>
+                </div>
+                <div class="chart-col">
+                  <div class="bars-group">
+                    <div class="b-bar b-blue" style="height: 65px"></div>
+                    <div class="b-bar b-purple" style="height: 45px"></div>
+                  </div>
+                  <div class="month-label">Sep</div>
+                </div>
+              </div>
+
+              <div class="donut-stats">
+                <div class="donut-item">
+                  <div class="mini-donut blue"></div>
+                  <div>
+                    <h3>Monthly</h3>
+                    <h2 style="font-size: 1.4rem">65,127</h2>
+                  </div>
+                </div>
+                <div class="donut-item">
+                  <div class="mini-donut purple"></div>
+                  <div>
+                    <h3>Yearly</h3>
+                    <h2 style="font-size: 1.4rem">984,246</h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-column">
+            <div class="right-top-split">
+              <div class="card">
+                <div style="display: flex; justify-content: space-between">
+                  <div>
+                    <h2>97.4K</h2>
+                    <h3>Total Users</h3>
+                  </div>
+                  <i class="fas fa-ellipsis-v" style="color: #aaa"></i>
+                </div>
+                <div class="mini-bars">
+                  <div class="bar" style="height: 30%"></div>
+                  <div class="bar" style="height: 50%"></div>
+                  <div class="bar" style="height: 80%"></div>
+                  <div class="bar" style="height: 60%"></div>
+                  <div class="bar" style="height: 100%"></div>
+                  <div class="bar" style="height: 40%"></div>
+                  <div class="bar" style="height: 55%"></div>
+                  <div class="bar" style="height: 35%"></div>
+                  
+                </div>
+                <p
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--success);
+                    margin-top: 10px;
+                  "
+                >
+                  +12.5% Growth
+                </p>
+              </div>
+
+              <div class="card radial-chart-box">
+                <div
+                  style="
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 5px;
+                  "
+                >
+                  <div>
+                    <h2>42.5K</h2>
+                    <h3>Active</h3>
+                  </div>
+                </div>
+                <div class="radial-progress"></div>
+                <p style="font-size: 0.7rem; color: #666">24K New Users</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <h2>$65,129</h2>
+                <span class="badge up"
+                  ><i class="fas fa-arrow-up"></i> 8.6%</span
+                >
+              </div>
+              <h3>Sales Goal Progress</h3>
+              <div
+                style="
+                  margin-top: 15px;
+                  margin-bottom: 5px;
+                  display: flex;
+                  justify-content: space-between;
+                "
+              >
+                <span style="font-size: 0.8rem; color: #666">Target: $80k</span>
+                <span style="font-weight: bold; font-size: 0.9rem">78%</span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-fill" style="width: 78%"></div>
+              </div>
+            </div>
+
+            <div
+              class="card"
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 10px">
+                <h2>$9,568</h2>
+                <span class="badge down"
+                  ><i class="fas fa-arrow-down"></i> 2.1%</span
+                >
+              </div>
+              <h3>Weekly Average</h3>
+              <svg
+                class="wave-chart"
+                viewBox="0 0 300 100"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop
+                      offset="0%"
+                      style="stop-color: rgb(28, 200, 138); stop-opacity: 0.2"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: rgb(255, 255, 255); stop-opacity: 0"
+                    />
+                  </linearGradient>
+                </defs>
+                <path
+                  class="path-line"
+                  d="M0,80 Q30,70 50,50 T100,50 T150,80 T200,30 T250,50 T300,80"
+                  stroke="#1cc88a"
+                  stroke-width="3"
+                  fill="none"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Simple Counters
+      document.querySelectorAll(".counter").forEach((counter) => {
+        const target = +counter.getAttribute("data-target");
+        counter.innerText = counter.innerText.includes("$")
+          ? "$" + target.toLocaleString()
+          : target.toLocaleString();
+      });
+      // Progress Bar Animation
+      window.addEventListener("load", () => {
+        const p = document.querySelector(".progress-fill");
+        p.style.width = "0%";
+        setTimeout(() => {
+          p.style.width = "78%";
+        }, 300);
+      });
+    </script>
+  </body>
+</html>
